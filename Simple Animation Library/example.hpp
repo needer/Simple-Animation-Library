@@ -2,6 +2,7 @@
 #define	DEMO_HPP
 
 #include <thread>
+#include <iostream>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -56,7 +57,6 @@ private:
 		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		glShadeModel(GL_SMOOTH);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
 		glDepthMask(GL_TRUE);
 		glClearDepth(1.0f);
 		glDepthFunc(GL_LEQUAL);
@@ -64,16 +64,17 @@ private:
 		glEnable(GL_TEXTURE_2D);
 
 		//Lighting
-		GLfloat light_color[] = { 0.0, 0.9, 0.0, 1.f };
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, light_color);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
+		//GLfloat light_color[] = { 0.0, 0.9, 0.0, 1.f };
+		//glMaterialfv(GL_FRONT, GL_DIFFUSE, light_color);
+		//glEnable(GL_LIGHTING);
+		//glEnable(GL_LIGHT0);
 
 		//Load texture from image
 		sf::Texture texture;
-		//texture.loadFromFile("OpenGL.jpeg");
+		texture.loadFromFile("OpenGL.jpg");
+		std::cout << texture.getSize().x << std::endl;
 		//Binds the texture for the following glTextCoord2d calls
-		//sf::Texture::bind(&texture);
+		sf::Texture::bind(&texture);
 
 		//Setup projection matrix
 		glMatrixMode(GL_PROJECTION);
@@ -83,10 +84,12 @@ private:
 
 		//The rendering loop
 		glMatrixMode(GL_MODELVIEW);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		while (window.isOpen()) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glLoadIdentity();
 
+			sf::Texture::bind(&texture);
 			glTranslatef(0.0f, 0.0f, -5.0f);
 
 			glRotatef(rotate_z, 0.0, 0.0, 1.0);
@@ -94,20 +97,20 @@ private:
 			glRotatef(rotate_x, 1.0, 0.0, 0.0);
 			rotate_x += 2.0;
 
-			glColor3f(0.0f, 1.0f, 0.0f);
+			//glColor3f(0.0f, 1.0f, 0.0f);
 
 			glBegin(GL_QUADS);
 			glNormal3d(0, 0, 1);
-			//glTexCoord2d(0.0, 1.0);
+			glTexCoord2d(0.0, 1.0);
 			glVertex3d(-2.0, -1.0, 1.0);
 
-			//glTexCoord2d(1.0, 1.0);
+			glTexCoord2d(1.0, 1.0);
 			glVertex3d(2.0, -1.0, 1.0);
 
-			//glTexCoord2d(1.0, 0.0);
+			glTexCoord2d(1.0, 0.0);
 			glVertex3d(2.0, 1.0, 1.0);
 
-			//glTexCoord2d(0.0, 0.0);
+			glTexCoord2d(0.0, 0.0);
 			glVertex3d(-2.0, 1.0, 1.0);
 			glEnd();
 
