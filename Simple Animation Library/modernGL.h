@@ -1,5 +1,4 @@
-#ifndef MODERNGL_H
-#define MODERNGL_H
+#pragma once
 
 #include "SFML\Window.hpp"
 
@@ -16,4 +15,3 @@ public:
 	void update();
 };
 
-#endif

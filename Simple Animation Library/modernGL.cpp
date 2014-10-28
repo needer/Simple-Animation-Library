@@ -1,3 +1,4 @@
+/*
 #include "GL\glew.h"
 #include "SFML\System.hpp"
 #include "SFML\Window.hpp"
@@ -71,3 +72,4 @@ void Modern::update()
 	window.display();
 }
 
+*/

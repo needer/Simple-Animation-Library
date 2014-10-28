@@ -1,14 +1,12 @@
 #include "staticsfml.h"
-#include "modernGL.h"
+#include "example.hpp"
 #include <iostream>
 
 int main()
 {
-	Modern m;
+	Example m;
 
-	m.run();
+	m.start();
 
-	int i;
-	std::cin >> i;
 	return 0;
 }
