@@ -21,6 +21,9 @@
     <ClCompile Include="modernGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modelhandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="example.hpp">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modelimporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modelhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

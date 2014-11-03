@@ -11,6 +11,7 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>
+#include "modelhandler.h"
 #include "mesh.h"
 #include "model.h"
 #include "r2d2.h"
@@ -84,7 +85,9 @@ private:
 		glEnable(GL_LIGHT0);
 
 		//Load our robot
-		R2D2 r2d2;
+		//R2D2 r2d2;
+		ModelHandler modelHandler;
+		modelHandler.import("C:/SALResources/plate.dae");
 
 		//Setup projection matrix
 		glMatrixMode(GL_PROJECTION);
@@ -99,8 +102,8 @@ private:
 			glLoadIdentity();
 
 			glTranslatef(0.0f, 0.0f, -20.0f);
-
-			r2d2.draw(0, 0.0);
+			glRotated(45.0, 0.0, 1.0, 0.0);
+			modelHandler.drawAll();
 
 			//Swap buffer (show result)
 			window.display();

@@ -11,16 +11,17 @@ public:
 	Model read(const std::string& filename) {
 		Model model;
 
+
 		Assimp::Importer importer;
 		//aiProcess_Triangulate is redundant together with aiProcessPreset_TargetRealtime_Fast, 
 		//but important to keep aiProcess_Triangulate if aiProcessPreset_TargetRealtime_Fast is removed
-		const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcessPreset_TargetRealtime_Fast);
+		const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcessPreset_TargetRealtime_Fast);
 
 		//Read textures:
-		for (unsigned int cm = 0; cm<scene->mNumMaterials; cm++) {
+		for (unsigned int cm = 0; cm < scene->mNumMaterials; cm++) {
 			//Assumes 1 texture per material
 			model.textures.emplace_back();
-			if (scene->mMaterials[cm]->GetTextureCount(aiTextureType_DIFFUSE)>0) {
+			if (scene->mMaterials[cm]->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 				aiString Path;
 				scene->mMaterials[cm]->GetTexture(aiTextureType_DIFFUSE, 0, &Path);
 				model.textures[cm].loadFromFile(Path.C_Str());
@@ -28,7 +29,8 @@ public:
 		}
 
 		//cm=mesh counter, cv=vertex counter, ctc=texture coord counter, cf=face counter, cfi=face index counter, 
-		for (unsigned int cm = 0; cm<scene->mNumMeshes; cm++) {
+		for (unsigned int cm = 0; cm < scene->mNumMeshes; cm++)
+		{
 			aiMesh *mesh = scene->mMeshes[cm];
 
 			model.meshes.emplace_back(mesh->mNumFaces);
@@ -36,11 +38,13 @@ public:
 			model.meshes[cm].material = mesh->mMaterialIndex;
 
 			size_t cv = 0, ctc = 0;
-			for (unsigned int cf = 0; cf<mesh->mNumFaces; cf++) {
+			for (unsigned int cf = 0; cf < mesh->mNumFaces; cf++)
+			{
 				const aiFace& face = mesh->mFaces[cf];
 
 				//aiProcess_Triangulate (in importer.ReadFile): face.mNumIndices=3
-				for (unsigned int cfi = 0; cfi<3; cfi++) {
+				for (unsigned int cfi = 0; cfi < 3; cfi++)
+				{
 					model.meshes[cm].vertices[cv] = mesh->mVertices[face.mIndices[cfi]].x;
 					model.meshes[cm].vertices[cv + 1] = mesh->mVertices[face.mIndices[cfi]].y;
 					model.meshes[cm].vertices[cv + 2] = mesh->mVertices[face.mIndices[cfi]].z;

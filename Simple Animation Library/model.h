@@ -10,6 +10,7 @@ public:
 	std::vector<Mesh> meshes;
 	//Some textures might be empty because we have one texture per material
 	std::vector<sf::Texture> textures;
+	std::vector<aiBone> bones;
 
 	void draw(int animationID, double animationTime) {
 		glEnableClientState(GL_VERTEX_ARRAY);
