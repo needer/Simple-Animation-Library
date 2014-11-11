@@ -24,30 +24,27 @@
     <ClCompile Include="modelhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="example.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="staticsfml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modernGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="r2d2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modelimporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="modelhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="demo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

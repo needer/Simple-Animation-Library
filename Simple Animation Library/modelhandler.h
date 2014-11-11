@@ -1,19 +1,26 @@
 #pragma once
 
+#include "model.h"
+
 #include <assimp\Importer.hpp>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 #include <string>
 #include <vector>
 
 class ModelHandler
 {
 private:
-	Assimp::Importer importer;
-	int numOfModels;
-	std::vector<const aiScene*> scenes;
-	
+	std::vector<Model> models;
+
+	aiVector3D interpolatePosition(const aiNodeAnim* channel, double currentTime);
+	aiQuaternion interpolateRotation(const aiNodeAnim* channel, double currentTime);
+	aiNode* nodeSearch(aiNode* currentNode, const aiString& targetName);
+
 public:
 	ModelHandler();
-	~ModelHandler();
-	bool import(std::string file);
+	void import(const std::string& filename);
+	bool unload(int index);
 	void drawAll();
+	void drawWithoutAnimation();
 };

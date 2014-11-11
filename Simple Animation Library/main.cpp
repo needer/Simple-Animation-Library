@@ -1,12 +1,10 @@
 #include "staticsfml.h"
-#include "example.hpp"
-#include <iostream>
+#include "demo.h"
 
 int main()
 {
-	Example m;
-
-	m.start();
+	DEMO demo;
+	demo.start();
 
 	return 0;
 }

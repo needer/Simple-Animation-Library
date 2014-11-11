@@ -83,18 +83,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="demo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="modelhandler.cpp" />
     <ClCompile Include="modernGL.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="example.hpp" />
-    <ClInclude Include="mesh.h" />
+    <ClInclude Include="demo.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="modelhandler.h" />
-    <ClInclude Include="modelimporter.h" />
     <ClInclude Include="modernGL.h" />
-    <ClInclude Include="r2d2.h" />
     <ClInclude Include="staticsfml.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
