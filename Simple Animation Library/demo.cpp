@@ -51,7 +51,7 @@ void DEMO::draw() {
 	glEnable(GL_TEXTURE_2D);
 
 	ModelHandler modelHandler;
-	modelHandler.import("C:/SALResources/collumn.dae");
+	modelHandler.import("C:/SALResources/collumn2.dae");
 
 	//Setup projection matrix (Camera)
 	glMatrixMode(GL_PROJECTION);
@@ -75,7 +75,7 @@ void DEMO::draw() {
 		// Render with or without animating the scene
 		modelHandler.drawAll();
 		//modelHandler.drawWithoutAnimation();
-
+		
 		//Send to canvas for display
 		window.display();
 	}

@@ -3,13 +3,14 @@
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
+#include <assimp\vector3.h>
 #include <SFML\System.hpp>
 #include <SFML\Graphics.hpp>
 #include <SFML\OpenGL.hpp>
 #include <iostream>
 
 ModelHandler::ModelHandler() :
-	models(std::vector<Model>())
+models(std::vector<Model>())
 {}
 
 
@@ -23,8 +24,8 @@ void ModelHandler::import(const std::string& filename)
 
 /*
 Removes the selected scene from vector and clears memory used
- */
-bool ModelHandler::unload(int index) 
+*/
+bool ModelHandler::unload(int index)
 {
 	if (index > models.size() || index < 0)
 		return false;
@@ -94,7 +95,6 @@ void ModelHandler::drawAll()
 		{
 			currentTime = 0.0;
 		}
-		currentTime = 0.0;
 
 		// For each animation channel (Kinda for each bone, but not really)
 		for (size_t i = 0; i < anim->mNumChannels; i++)
@@ -105,22 +105,19 @@ void ModelHandler::drawAll()
 			aiNode* targetNode = nodeSearch(scene->mRootNode, channel->mNodeName);
 
 			// Interpolate position
-			const aiVector3D& curPosition = interpolatePosition(channel, currentTime);
-			const aiQuaternion& curRotation = interpolateRotation(channel, currentTime);
+			aiVector3D& curPosition = interpolatePosition(channel, currentTime);
+			aiQuaternion& curRotation = interpolateRotation(channel, currentTime);
 			
-			glBegin(GL_LINES);
-			glVertex3d(curPosition.x, curPosition.y, curPosition.z);
-			glVertex3d(curPosition.x, curPosition.y + 1, curPosition.z);
-			glEnd();
-
 			aiMatrix4x4 trafo = aiMatrix4x4(curRotation.GetMatrix()); // Get rotation matrix
-			trafo.a4 = curPosition.x; trafo.b4 = curPosition.y; trafo.c4 = curPosition.z;
+			trafo.a4 = curPosition.x; 
+			trafo.b4 = curPosition.y; 
+			trafo.c4 = curPosition.z;
 			// assign this transformation to the node
 			targetNode->mTransformation = trafo;
 		}
 
 		// Render scene
-		glBegin(GL_TRIANGLES);
+		
 
 		// For every mesh in the scene
 		for (size_t i = 0; i < scene->mNumMeshes; i++)
@@ -137,6 +134,8 @@ void ModelHandler::drawAll()
 				aiNode* currentNode = nodeSearch(scene->mRootNode, currentBone->mName);
 
 				boneMatrices[k] = currentBone->mOffsetMatrix;
+				glColor3d(1.0, 0.0, 0.0);
+				renderMatrix(boneMatrices[k]);
 				const aiNode* temporaryCurrentNode = currentNode;
 
 				while (temporaryCurrentNode)
@@ -144,6 +143,8 @@ void ModelHandler::drawAll()
 					boneMatrices[k] *= temporaryCurrentNode->mTransformation;
 					temporaryCurrentNode = temporaryCurrentNode->mParent;
 				}
+				glColor3d(0.0, 1.0, 0.0);
+				renderMatrix(boneMatrices[k]);
 			}
 
 			// For every bone in the mesh (Skinning)
@@ -164,10 +165,12 @@ void ModelHandler::drawAll()
 
 			// For every face
 			size_t cv = 0, ctc = 0;
+			glColor3d(1.0, 1.0, 1.0);
 			for (int cf = 0; cf < meshptr->mNumFaces; cf++)
 			{
 				const aiFace& face = meshptr->mFaces[cf];
 				// For all vertices in face
+				glBegin(GL_LINES);
 				for (int cfi = 0; cfi < 3; cfi++)
 				{
 					/*
@@ -175,15 +178,16 @@ void ModelHandler::drawAll()
 					double y = meshptr->mVertices[face.mIndices[cfi]].y;
 					double z = meshptr->mVertices[face.mIndices[cfi]].z;
 					glVertex3d(x, y, z);*/
-					
+
 					double x = resultPosition[face.mIndices[cfi]].x;
 					double y = resultPosition[face.mIndices[cfi]].y;
 					double z = resultPosition[face.mIndices[cfi]].z;
 					glVertex3d(x, y, z);
 				}
+				glEnd();
 			}
 		}
-		glEnd();
+		
 
 
 	}
@@ -193,7 +197,7 @@ void ModelHandler::drawAll()
 /*
 	Takes the current channel and time as parameters.
 	Returns a position that has been linearly interpolated between all frames in the animation.
-*/
+	*/
 aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double time)
 {
 	aiVector3D curPosition;
@@ -218,11 +222,13 @@ aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double t
 		double frameLength = channel->mPositionKeys[t + 1].mTime - channel->mPositionKeys[t].mTime;
 		double timePos = (time - channel->mPositionKeys[t].mTime) / frameLength;
 
+
 		curPosition = (nextFramePosition - framePosition);
 		curPosition.x *= timePos;
 		curPosition.y *= timePos;
 		curPosition.z *= timePos;
 		curPosition += framePosition;
+
 		break;
 	}
 	return curPosition;
@@ -231,7 +237,7 @@ aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double t
 /*
 	DOES NOT WORK PROPERLY
 	Unfinished interpolation of rotations
-*/
+	*/
 aiQuaternion ModelHandler::interpolateRotation(const aiNodeAnim* channel, double time)
 {
 	aiQuaternion curRotation;
@@ -256,21 +262,42 @@ aiQuaternion ModelHandler::interpolateRotation(const aiNodeAnim* channel, double
 		double frameLength = channel->mRotationKeys[t + 1].mTime - channel->mRotationKeys[t].mTime;
 		double timePos = (time - channel->mRotationKeys[t].mTime) / frameLength;
 
+		aiQuaternion::Interpolate(curRotation, frameRotation, nextFrameRotation, timePos);
+
+		std::cout << curRotation.y << std::endl;
+		/*
+		curRotation.w = (nextFrameRotation.w - frameRotation.w);
 		curRotation.x = (nextFrameRotation.x - frameRotation.x);
 		curRotation.y = (nextFrameRotation.y - frameRotation.y);
 		curRotation.z = (nextFrameRotation.z - frameRotation.z);
-		curRotation.w = (nextFrameRotation.w - frameRotation.w);
-		
+
+		curRotation.w *= timePos;
 		curRotation.x *= timePos;
 		curRotation.y *= timePos;
 		curRotation.z *= timePos;
-		curRotation.w *= timePos;
 
+		curRotation.w += frameRotation.w;
 		curRotation.x += frameRotation.x;
 		curRotation.y += frameRotation.y;
 		curRotation.z += frameRotation.z;
-		curRotation.w += frameRotation.w;
+		*/
+		/*
+		curRotation.w = (nextFrameRotation.x - frameRotation.x);
+		curRotation.x = (nextFrameRotation.y - frameRotation.y);
+		curRotation.y = (nextFrameRotation.z - frameRotation.z);
+		curRotation.z = (nextFrameRotation.w - frameRotation.w);
 
+		curRotation.w *= timePos;
+		curRotation.x *= timePos;
+		curRotation.y *= timePos;
+		curRotation.z *= timePos;
+
+		curRotation.w += frameRotation.x;
+		curRotation.x += frameRotation.y;
+		curRotation.y += frameRotation.z;
+		curRotation.z += frameRotation.w;
+
+		*/
 
 		break;
 	}
@@ -279,7 +306,7 @@ aiQuaternion ModelHandler::interpolateRotation(const aiNodeAnim* channel, double
 
 /*
 	A recursive function that searches through all children and returnes a pointer to the target node.
-*/
+	*/
 aiNode* ModelHandler::nodeSearch(aiNode* currentNode, const aiString& targetName)
 {
 	if (currentNode->mName == targetName)
@@ -291,4 +318,21 @@ aiNode* ModelHandler::nodeSearch(aiNode* currentNode, const aiString& targetName
 			return nodeToTest;
 	}
 	return nullptr;
+}
+
+/*
+Renders a line using the refrenced matrix
+*/
+void ModelHandler::renderMatrix(const aiMatrix4x4& matrix)
+{
+	aiVector3D scaling;
+	aiQuaternion rotation;
+	aiVector3D position;
+	matrix.Decompose(scaling, rotation, position);
+	glBegin(GL_LINES);
+	glVertex3d(position.x, position.y, position.z);
+	glVertex3d(position.x,
+		position.y + 0.5,
+		position.z);
+	glEnd();
 }

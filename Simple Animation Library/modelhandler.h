@@ -23,4 +23,5 @@ public:
 	bool unload(int index);
 	void drawAll();
 	void drawWithoutAnimation();
+	void renderMatrix(const aiMatrix4x4& matrix);
 };
