@@ -51,7 +51,7 @@ void DEMO::draw() {
 	glEnable(GL_TEXTURE_2D);
 
 	ModelHandler modelHandler;
-	modelHandler.import("C:/SALResources/collumn2.dae");
+	modelHandler.import("C:/SALResources/collumn.dae");
 
 	//Setup projection matrix (Camera)
 	glMatrixMode(GL_PROJECTION);

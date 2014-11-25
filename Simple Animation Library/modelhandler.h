@@ -15,7 +15,8 @@ private:
 
 	aiVector3D interpolatePosition(const aiNodeAnim* channel, double currentTime);
 	aiQuaternion interpolateRotation(const aiNodeAnim* channel, double currentTime);
-	aiNode* nodeSearch(aiNode* currentNode, const aiString& targetName);
+	aiVector3D interpolateScale(const aiNodeAnim* channel, double currentTime);
+
 
 public:
 	ModelHandler();
