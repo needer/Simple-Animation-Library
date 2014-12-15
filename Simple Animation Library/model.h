@@ -12,5 +12,7 @@ private:
 public:
 	const aiScene* scene;
 	Model(const std::string& filename);
+	void draw(unsigned int animation, double timeIn);
+	double animationLength(unsigned int animation);
 };
 

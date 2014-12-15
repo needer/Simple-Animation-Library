@@ -10,19 +10,18 @@
 
 class ModelHandler
 {
-private:
+public:
 	std::vector<Model> models;
 
-	aiVector3D interpolatePosition(const aiNodeAnim* channel, double currentTime);
-	aiQuaternion interpolateRotation(const aiNodeAnim* channel, double currentTime);
-	aiVector3D interpolateScale(const aiNodeAnim* channel, double currentTime);
-
-
-public:
 	ModelHandler();
 	void import(const std::string& filename);
 	bool unload(int index);
 	void drawAll();
 	void drawWithoutAnimation();
 	void renderMatrix(const aiMatrix4x4& matrix);
+
+	static aiVector3D& interpolatePosition(const aiNodeAnim* channel, double currentTime);
+	static aiQuaternion& interpolateRotation(const aiNodeAnim* channel, double currentTime);
+	static aiVector3D& interpolateScale(const aiNodeAnim* channel, double currentTime);
+
 };

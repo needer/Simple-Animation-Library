@@ -9,6 +9,7 @@
 #include <SFML\OpenGL.hpp>
 #include <iostream>
 
+
 ModelHandler::ModelHandler() :
 models(std::vector<Model>())
 {}
@@ -74,7 +75,6 @@ void ModelHandler::drawWithoutAnimation()
 		}
 		glEnd();
 
-
 	}
 }
 
@@ -93,16 +93,16 @@ void ModelHandler::drawAll()
 
 		// Get animation and iterate the animation timer
 		const aiAnimation* anim = scene->mAnimations[0];
-		currentTime += 0.01;
+		currentTime += 0.1;
 		if (currentTime > anim->mDuration)
 		{
 			currentTime = 0.0;
 		}
-
+		//std::cout << currentTime << std::endl;
 		
 		// 2:
 
-		// For each animation channel (Kinda for each bone, but not really)
+		// For each animation channel (Kinda for each bone)
 		// Interpolate the bone position and rotation with time
 		// Assign the transformation to the node in question
 		for (size_t i = 0; i < anim->mNumChannels; i++)
@@ -111,33 +111,20 @@ void ModelHandler::drawAll()
 			// FIND TARGET NODE RECURSIVELY, START WITH ROOT NODE
 			// Target node = selected bone? Most likely
 			aiNode* targetNode = scene->mRootNode->FindNode(channel->mNodeName);		// Find the target node from the root node
-
+			
 			// Interpolate position
 			aiVector3D& curPosition = interpolatePosition(channel, currentTime);
 			aiQuaternion& curRotation = interpolateRotation(channel, currentTime);
 			aiVector3D& curScale = interpolateScale(channel, currentTime);
 
-			
-			// DEBUG, SHOW BONE2 ROTATION ON CONSOLE
-												// Armature	-> Bone1 -> Bone2
-			const aiNode* kk = scene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0];
-			if (targetNode->mName.data == kk->mName.data)
-				std::cout << curRotation.w << std::endl;
-
-
 			// Create transformation matrix from scale, rotation and position
 			aiMatrix4x4 trafo = aiMatrix4x4(curScale, curRotation, curPosition);
-
-			/* FROM THE INTERNET, NOT NEEDED I THINK?!
-			aiMatrix4x4 trafo = aiMatrix4x4(curRotation.GetMatrix());				// Get matrix from rotation
-			trafo.a4 = curPosition.x; 
-			trafo.b4 = curPosition.y; 
-			trafo.c4 = curPosition.z;
-			*/
 
 			// assign this transformation to the node
 			targetNode->mTransformation = trafo;
 		}
+
+
 
 
 		// For every mesh in the scene
@@ -156,36 +143,32 @@ void ModelHandler::drawAll()
 				const aiBone* currentBone = meshptr->mBones[k];
 				aiNode* currentNode = scene->mRootNode->FindNode(currentBone->mName);
 
+				// Printing out the current nodes matrix
+				/*std::cout << currentNode->mName.data << " node"<< std::endl;
+				std::cout << currentNode->mTransformation.a1 << ", " << currentNode->mTransformation.a2 << ", " << currentNode->mTransformation.a3 << ", " << currentNode->mTransformation.a4 << std::endl;
+				std::cout << currentNode->mTransformation.b1 << ", " << currentNode->mTransformation.b2 << ", " << currentNode->mTransformation.b3 << ", " << currentNode->mTransformation.b4 << std::endl;
+				std::cout << currentNode->mTransformation.c1 << ", " << currentNode->mTransformation.c2 << ", " << currentNode->mTransformation.c3 << ", " << currentNode->mTransformation.c4 << std::endl;
+				std::cout << currentNode->mTransformation.d1 << ", " << currentNode->mTransformation.d2 << ", " << currentNode->mTransformation.d3 << ", " << currentNode->mTransformation.d4 << std::endl;*/
+
+				// Get the current bones matrix
 				boneMatrices[k] = currentBone->mOffsetMatrix;
-				glColor3d(1.0, 0.0, 0.0);
-				renderMatrix(boneMatrices[k]);
 
-				/*
-				// Decompose the matrix
-				aiVector3D tPos;
-				aiVector3D tScale;
-				aiQuaternion tRot;
-				boneMatrices[k].Decompose(tScale, tRot, tPos);				
-				// Flip the Y and Z axis
-				float tempY = tPos.y;
-				tPos.y = tPos.z;
-				tPos.z = tempY;
-				// Reconstruct the matrix
-				boneMatrices[k] = aiMatrix4x4(tScale, tRot, tPos);
-				*/
+				// Print out the bones matrix before it gets animated
+				/*std::cout << currentBone->mName.data << " bone" << std::endl;
+				std::cout << currentBone->mOffsetMatrix.a1 << ", " << currentBone->mOffsetMatrix.a2 << ", " << currentBone->mOffsetMatrix.a3 << ", " << currentBone->mOffsetMatrix.a4 << std::endl;
+				std::cout << currentBone->mOffsetMatrix.b1 << ", " << currentBone->mOffsetMatrix.b2 << ", " << currentBone->mOffsetMatrix.b3 << ", " << currentBone->mOffsetMatrix.b4 << std::endl;
+				std::cout << currentBone->mOffsetMatrix.c1 << ", " << currentBone->mOffsetMatrix.c2 << ", " << currentBone->mOffsetMatrix.c3 << ", " << currentBone->mOffsetMatrix.c4 << std::endl;
+				std::cout << currentBone->mOffsetMatrix.d1 << ", " << currentBone->mOffsetMatrix.d2 << ", " << currentBone->mOffsetMatrix.d3 << ", " << currentBone->mOffsetMatrix.d4 << std::endl;*/
 
-				const aiNode* temporaryCurrentNode = currentNode;
-				
-				const aiNode* kk = scene->mRootNode->mChildren[0];				// Root node -> Armature, if more than one armature.. uh oh
-				while (temporaryCurrentNode)
+				const aiNode* armature = scene->mRootNode->mChildren[0]; // Armature bone/node
+				const aiNode* root = scene->mRootNode; // Root
+				while (currentNode)
 				{
-					if (temporaryCurrentNode->mName == kk->mName)				// IF THE NODE IS THE ARMATURE, BREAK AWAY
-						break;													// if the armature is used, the transformation will be wrong
-					boneMatrices[k] *= temporaryCurrentNode->mTransformation;
-					temporaryCurrentNode = temporaryCurrentNode->mParent;
+					if (currentNode == armature)
+						break;
+					boneMatrices[k] *= currentNode->mTransformation;
+					currentNode = currentNode->mParent;
 				}
-				glColor3d(0.0, 1.0, 0.0);
-				renderMatrix(boneMatrices[k]);
 			}
 
 			// 4:
@@ -196,6 +179,7 @@ void ModelHandler::drawAll()
 			for (size_t k = 0; k < meshptr->mNumBones; k++)
 			{
 				const aiBone* currentBone = meshptr->mBones[k];
+
 				const aiMatrix4x4& positionMatrix = boneMatrices[k];
 				for (size_t j = 0; j < currentBone->mNumWeights; j++)
 				{
@@ -214,21 +198,17 @@ void ModelHandler::drawAll()
 			for (int cf = 0; cf < meshptr->mNumFaces; cf++)
 			{
 				const aiFace& face = meshptr->mFaces[cf];
-				// For all vertices in face (Final polygon render)
+
+				// For all vertices in face (Final drawing)
 				glBegin(GL_LINES);
 				for (int cfi = 0; cfi < 3; cfi++)
 				{
-					/*
-					double x = meshptr->mVertices[face.mIndices[cfi]].x;
-					double y = meshptr->mVertices[face.mIndices[cfi]].y;
-					double z = meshptr->mVertices[face.mIndices[cfi]].z;
-					glVertex3d(x, y, z);*/
-
 					double x = resultPosition[face.mIndices[cfi]].x;
 					double y = resultPosition[face.mIndices[cfi]].y;
 					double z = resultPosition[face.mIndices[cfi]].z;
 					glVertex3d(x, y, z);
 				}
+
 				glEnd();
 			}
 		}
@@ -238,11 +218,11 @@ void ModelHandler::drawAll()
 /*
 	Takes the current channel and time as parameters.
 	Returns a position that has been linearly interpolated between all frames in the animation.
-	*/
-aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double time)
+*/
+aiVector3D& ModelHandler::interpolatePosition(const aiNodeAnim* channel, double time)
 {
 	aiVector3D curPosition;
-	return curPosition;
+	
 	for (size_t t = 0; t < channel->mNumPositionKeys; t++)
 	{
 		// If this is the last key, set position to last frame and break loop
@@ -264,7 +244,7 @@ aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double t
 		double frameLength = channel->mPositionKeys[t + 1].mTime - channel->mPositionKeys[t].mTime;
 		double timePos = (time - channel->mPositionKeys[t].mTime) / frameLength;
 
-
+		
 		curPosition = (nextFramePosition - framePosition);
 		curPosition.x *= timePos;
 		curPosition.y *= timePos;
@@ -280,7 +260,7 @@ aiVector3D ModelHandler::interpolatePosition(const aiNodeAnim* channel, double t
 	DOES NOT WORK PROPERLY
 	Unfinished interpolation of rotations
 	*/
-aiQuaternion ModelHandler::interpolateRotation(const aiNodeAnim* channel, double time)
+aiQuaternion& ModelHandler::interpolateRotation(const aiNodeAnim* channel, double time)
 {
 	aiQuaternion curRotation;
 	for (size_t t = 0; t < channel->mNumRotationKeys; t++)
@@ -345,7 +325,7 @@ aiQuaternion ModelHandler::interpolateRotation(const aiNodeAnim* channel, double
 	return curRotation;
 }
 
-aiVector3D ModelHandler::interpolateScale(const aiNodeAnim* channel, double time)
+aiVector3D& ModelHandler::interpolateScale(const aiNodeAnim* channel, double time)
 {
 	aiVector3D curScale(1.0f);
 	for (size_t t = 0; t < channel->mNumScalingKeys; t++)

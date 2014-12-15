@@ -51,7 +51,7 @@ void DEMO::draw() {
 	glEnable(GL_TEXTURE_2D);
 
 	ModelHandler modelHandler;
-	modelHandler.import("C:/SALResources/collumn.dae");
+	modelHandler.import("C:/SALResources/c.dae");
 
 	//Setup projection matrix (Camera)
 	glMatrixMode(GL_PROJECTION);
@@ -59,10 +59,14 @@ void DEMO::draw() {
 	GLfloat ratio = float(window.getSize().x) / window.getSize().y;
 	glFrustum(-ratio, ratio, -1.0, 1.0, 1.0, 500.0);
 
+	double timer = 0.0;
+
 	//The rendering loop
 	glMatrixMode(GL_MODELVIEW);
 	double rotationAngle = 0.0; // Used to rotate the camera to get a better view of the scene
 	while (window.isOpen()) {
+		timer += 0.05;
+
 		// Clear the screen for rerender
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
@@ -73,9 +77,13 @@ void DEMO::draw() {
 		rotationAngle += 0.1;
 
 		// Render with or without animating the scene
-		modelHandler.drawAll();
-		//modelHandler.drawWithoutAnimation();
-		
+		for (Model& model : modelHandler.models)
+		{
+			model.draw(0, timer);
+			if (timer > model.animationLength(0))
+				timer = 0.0;
+		}
+
 		//Send to canvas for display
 		window.display();
 	}
