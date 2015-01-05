@@ -11,17 +11,16 @@
 class ModelHandler
 {
 public:
-	std::vector<Model> models;
+	Model model;
 
-	ModelHandler();
 	void import(const std::string& filename);
-	bool unload(int index);
-	void drawAll();
-	void drawWithoutAnimation();
+	bool unload();
+	void drawModel();
+	void drawModelWithoutAnimation();
 	void renderMatrix(const aiMatrix4x4& matrix);
 
-	static aiVector3D& interpolatePosition(const aiNodeAnim* channel, double currentTime);
-	static aiQuaternion& interpolateRotation(const aiNodeAnim* channel, double currentTime);
-	static aiVector3D& interpolateScale(const aiNodeAnim* channel, double currentTime);
+	static aiVector3D interpolatePosition(const aiNodeAnim* channel, double currentTime);
+	static aiQuaternion interpolateRotation(const aiNodeAnim* channel, double currentTime);
+	static aiVector3D interpolateScale(const aiNodeAnim* channel, double currentTime);
 
 };

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "modelhandler.h"
-
 #include <thread>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

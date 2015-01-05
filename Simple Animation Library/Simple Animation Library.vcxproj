@@ -86,15 +86,10 @@
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="modelhandler.cpp" />
-    <ClCompile Include="modernGL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo.h" />
     <ClInclude Include="model.h" />
-    <ClInclude Include="model2.h" />
-    <ClInclude Include="modelhandler.h" />
-    <ClInclude Include="modernGL.h" />
     <ClInclude Include="staticsfml.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

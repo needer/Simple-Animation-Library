@@ -1,5 +1,8 @@
 #include "demo.h"
+#include "model.h"
+#include "SFML\System.hpp"
 
+#include <iostream>
 
 DEMO::DEMO() :
 contextSettings(32), window(sf::VideoMode(800, 640), "Simple Animation Library DEMO", sf::Style::Default, contextSettings)
@@ -7,8 +10,10 @@ contextSettings(32), window(sf::VideoMode(800, 640), "Simple Animation Library D
 
 
 void DEMO::start() {
-	window.setFramerateLimit(180);
-	window.setVerticalSyncEnabled(true);
+	
+	//Set framerate limit and disable vertical sync
+	window.setFramerateLimit(300);
+	window.setVerticalSyncEnabled(false);
 
 	//Deactivate OpenGL context of window, will reopen in draw()
 	window.setActive(false);
@@ -39,19 +44,15 @@ void DEMO::start() {
 void DEMO::draw() {
 	//Activate the window's context
 	window.setActive();
-	
+
 	//Various settings for OpenGL
 	glClearColor(0.5, 0.5, 0.5, 0.0f);
-	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glEnable(GL_TEXTURE_2D);
 
-	ModelHandler modelHandler;
-	modelHandler.import("C:/SALResources/c.dae");
 
 	//Setup projection matrix (Camera)
 	glMatrixMode(GL_PROJECTION);
@@ -59,30 +60,53 @@ void DEMO::draw() {
 	GLfloat ratio = float(window.getSize().x) / window.getSize().y;
 	glFrustum(-ratio, ratio, -1.0, 1.0, 1.0, 500.0);
 
-	double timer = 0.0;
+
+	// Create and import models
+	Model model1 = Model("C:/SALResources/collumn.dae");
+	Model model2 = Model("C:/SALResources/c.dae");
+	model2.wireframe = true;
+	model1.wireframe = true;
+
+	// Create timers
+	sf::Clock clock;
+	sf::Time animStart1 = clock.getElapsedTime();
+	sf::Time animStart2 = clock.getElapsedTime();
+
 
 	//The rendering loop
 	glMatrixMode(GL_MODELVIEW);
+
 	double rotationAngle = 0.0; // Used to rotate the camera to get a better view of the scene
 	while (window.isOpen()) {
-		timer += 0.05;
-
-		// Clear the screen for rerender
+		// Clear the screen, preparing next render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
+		
 
-		// Rotate scene
-		glTranslatef(0.0f, 0.0f, -10.0f);
+		// Rotate scene, so the model can be viewed from all sides
+		glTranslatef(0.0f, -2.0f, -10.0f);
 		glRotated(rotationAngle, 0.0, 1.0, 0.0);
-		rotationAngle += 0.1;
+		rotationAngle += 0.2;
 
-		// Render with or without animating the scene
-		for (Model& model : modelHandler.models)
-		{
-			model.draw(0, timer);
-			if (timer > model.animationLength(0))
-				timer = 0.0;
-		}
+
+
+		// Move the first and second objects, so that they are standing side by side
+		glTranslated(-2.5, 0.0, 0.0);
+
+		// Render the imported model2
+		double deltaAnim1 = clock.getElapsedTime().asSeconds() - animStart1.asSeconds();
+		model1.draw(0, deltaAnim1);
+		if (deltaAnim1 > model1.animationLength(0)) // If the animation has finished
+			animStart1 = clock.getElapsedTime();   // Restart animation (loop)
+
+		// Moving second
+		glTranslated(5.0, 0.0, 0.0);
+		
+		double deltaAnim2 = clock.getElapsedTime().asSeconds() - animStart2.asSeconds();
+		model2.draw(0, deltaAnim2);
+		if (deltaAnim2 > model2.animationLength(0)) // If the animation has finished
+			animStart2 = clock.getElapsedTime();   // Restart animation (loop)
+
 
 		//Send to canvas for display
 		window.display();
