@@ -14,7 +14,7 @@ private:
 	aiVector3D Model::interpolatePosition(const aiNodeAnim* channel, double time);
 public:
 	const aiScene* scene;
-	bool wireframe = false;
+	bool wireframe;
 
 	Model(const std::string& filename);
 	~Model();

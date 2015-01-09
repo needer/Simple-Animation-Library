@@ -20,7 +20,7 @@ void DEMO::start() {
 
 	//Start draw in a separate thread
 	std::thread draw_thread(&DEMO::draw, this);
-
+	
 	//Event thread for input and window movement (main thread)
 	while (window.isOpen()) {
 		sf::Event event;
@@ -84,16 +84,15 @@ void DEMO::draw() {
 		
 
 		// Rotate scene, so the model can be viewed from all sides
-		glTranslatef(0.0f, -2.0f, -10.0f);
+		glTranslatef(0.0f, -2.0f, -15.0f);
 		glRotated(rotationAngle, 0.0, 1.0, 0.0);
-		rotationAngle += 0.2;
-
+		rotationAngle += 0.05;
 
 
 		// Move the first and second objects, so that they are standing side by side
 		glTranslated(-2.5, 0.0, 0.0);
 
-		// Render the imported model2
+		// Render the imported models
 		double deltaAnim1 = clock.getElapsedTime().asSeconds() - animStart1.asSeconds();
 		model1.draw(0, deltaAnim1);
 		if (deltaAnim1 > model1.animationLength(0)) // If the animation has finished

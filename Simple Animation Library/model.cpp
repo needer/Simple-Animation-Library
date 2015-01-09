@@ -10,7 +10,7 @@
 #include <SFML\OpenGL.hpp>
 
 Model::Model(const std::string& filename) : 
-	importer(Assimp::Importer())
+	importer(Assimp::Importer()), wireframe(false)
 {
 	scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcessPreset_TargetRealtime_Fast);
 	if (scene == nullptr)
@@ -35,10 +35,10 @@ void Model::draw(unsigned int animation, double timeIn)
 {
 	if (scene->mNumAnimations <= animation)
 		return;
-	
+
 	aiAnimation* currentAnimation = scene->mAnimations[animation];
 
-	//2: Interpolate position, rotation, scale in the all channels and add to transformation
+	//Step 1: Interpolate position, rotation, scale in the all channels and add to transformation
 	for (unsigned int i = 0; i < currentAnimation->mNumChannels; i++)
 	{
 		aiNodeAnim* currentChannel = currentAnimation->mChannels[i];
@@ -56,7 +56,7 @@ void Model::draw(unsigned int animation, double timeIn)
 	for (unsigned int k = 0; k < scene->mNumMeshes; k++)
 	{
 
-		//3: Bone transformation, change transformation of the bone according to animation
+		//Step 2: Bone transformation, change transformation of the bone according to animation
 		aiMesh* currentMesh = scene->mMeshes[k];
 
 		std::vector<aiMatrix4x4> boneTransformations = std::vector<aiMatrix4x4>(currentMesh->mNumBones);
@@ -68,7 +68,7 @@ void Model::draw(unsigned int animation, double timeIn)
 			boneTransformations[i] *= currentMesh->mBones[i]->mOffsetMatrix;
 		}
 
-		//4: Skinning
+		//Step 3: Skinning
 		std::vector<aiVector3D> resultPosition(currentMesh->mNumVertices);
 		for (size_t k = 0; k < currentMesh->mNumBones; k++)
 		{
@@ -84,10 +84,10 @@ void Model::draw(unsigned int animation, double timeIn)
 			}
 		}
 
-		//5: Draw the final model
+		//Step 4: Draw the final model
 		// For every face
 		size_t cv = 0, ctc = 0;
-		glColor3d(1.0, 1.0, 1.0);
+		glColor3d(1.0, 1.0, 1.0); // Set the face color to white
 		for (int cf = 0; cf < currentMesh->mNumFaces; cf++)
 		{
 			const aiFace& face = currentMesh->mFaces[cf];
@@ -112,12 +112,12 @@ void Model::draw(unsigned int animation, double timeIn)
 
 }
 
-// Bone multiplication, generates a matrix with the final transformation in an animation
+// Bone multiplication, generates a matrix by multiplying from the root matrix to the current node matrix
 aiMatrix4x4 Model::parentMultiplication(const aiNode* currentNode) const
 {
 	std::vector<aiNode*> nodes;
 	aiNode* tempNode = currentNode->mParent;
-	while (tempNode->mParent != scene->mRootNode)
+	while (tempNode->mParent)
 	{
 		nodes.push_back(tempNode);
 		tempNode = tempNode->mParent;
